@@ -51,6 +51,7 @@ const GENERAL_SCOPE_HINTS = [
   'jual',
   'harga',
   'eiger',
+  'foot ware',
   'footware',
   'footwear',
   'alas kaki',
@@ -90,13 +91,10 @@ const CATALOG_OVERVIEW_HINTS = [
 
 const CATALOG_LIST_HINTS = [
   'daftar produk',
-  'list produk',
   'katalog produk',
   'semua produk',
   'daftar barang',
   'daftar item',
-  'list barang',
-  'list item',
   'produk apa saja',
   'barang apa saja',
   'barang apa aja',
@@ -116,9 +114,6 @@ const CATALOG_LIST_HINTS = [
 const CATALOG_LIST_PAGE_SIZE = 10;
 
 const CATEGORY_MENU_HINTS = [
-  'list',
-  'list kategori',
-  'daftar kategori',
   'kategori tersedia',
   'kategori produk',
 ];
@@ -127,7 +122,7 @@ const CATEGORY_RULES = [
   {
     key: 'footware',
     label: 'Foot ware',
-    aliases: ['footware', 'footwear', 'alas kaki', 'sanda', 'sandal', 'sendal', 'sandals', 'sepatu', 'shoes'],
+    aliases: ['foot ware', 'footware', 'footwear', 'alas kaki', 'sanda', 'sandal', 'sendal', 'sandals', 'sepatu', 'shoes'],
     include: [/\bshoes?\b/i, /\bsandals?\b/i],
     exclude: [/\bbag\b/i],
   },
@@ -139,7 +134,6 @@ const HELP_HINTS = [
   'menu',
   'help',
   'bantuan',
-  'list chat',
   'daftar chat',
   'contoh chat',
   'cara pakai',
@@ -271,9 +265,9 @@ function getDefaultBehavior() {
     catalog_overview_response:
       'Nomor ini khusus melayani kategori Foot ware EIGER, seperti sandal dan sepatu sesuai katalog toko.',
     welcome_response:
-      'Selamat datang di store kami. Saya siap membantu info produk yang tersedia di katalog. Ketik list untuk melihat kategori, daftar produk untuk melihat katalog, atau sebutkan produk yang Anda cari.',
+      'Selamat datang di store kami. Saya siap membantu info produk Foot ware yang tersedia di katalog. Ketik "jualan apa", "tampilkan semua produk", atau sebutkan produk yang Anda cari.',
     help_response:
-      'Menu contoh chat:\n\n1. Ketik "jualan apa" untuk melihat kategori yang dilayani.\n2. Ketik "tampilkan semua produk" untuk melihat 10 produk pertama.\n3. Setelah daftar muncul, balas "2", "3", dan seterusnya untuk lanjut halaman.\n4. Ketik "Foot ware" untuk melihat rekomendasi kategori ini.\n5. Ketik "sepatu eiger" untuk mencari produk sepatu.\n6. Ketik "sandal eiger" untuk mencari produk sandal.\n7. Setelah hasil muncul, ketik "yang murah" untuk pilihan termurah.\n8. Setelah hasil muncul, ketik "yang terlaris" untuk produk paling laris.\n9. Setelah hasil muncul, ketik "yang paling mahal" untuk produk harga tertinggi.\n10. Ketik target harga seperti "200.000" untuk mencari harga terdekat.\n11. Ketik "nama toko" atau "lokasi toko" untuk info toko.\n\nCatatan: nomor ini khusus kategori Foot ware.',
+      'Menu contoh chat:\n\n1. Ketik "jualan apa" untuk melihat kategori yang dilayani.\n2. Ketik "tampilkan semua produk" untuk melihat 10 produk pertama.\n3. Setelah daftar muncul, balas "1" sampai "10" untuk pilih produk pada halaman itu.\n4. Ketik "halaman 2" untuk lanjut ke halaman berikutnya.\n5. Ketik "Foot ware" untuk melihat rekomendasi kategori ini.\n6. Setelah rekomendasi muncul, balas "1", "2", atau "3" untuk pilih produk.\n7. Ketik "sepatu eiger" untuk mencari produk sepatu.\n8. Ketik "sandal eiger" untuk mencari produk sandal.\n9. Setelah hasil muncul, ketik "yang murah" untuk pilihan termurah.\n10. Setelah hasil muncul, ketik "yang terlaris" untuk produk paling laris.\n11. Setelah hasil muncul, ketik "yang paling mahal" untuk produk harga tertinggi.\n12. Ketik target harga seperti "200.000" untuk mencari harga terdekat.\n13. Ketik "nama toko" atau "lokasi toko" untuk info toko.\n\nCatatan: nomor ini khusus kategori Foot ware.',
     system_instructions:
       'Anda adalah asisten chat toko. Jawab hanya seputar produk yang ada di katalog dan profil toko yang tersedia di sistem. Untuk pertanyaan umum produk, rekomendasikan 1 sampai 3 item paling relevan dari konteks beserta harga jika ada. Jangan mengarang stok, alamat detail, atau informasi di luar data. Jika ditanya di luar ruang lingkup toko, tolak dengan sopan menggunakan respons out-of-scope yang tersedia.',
     fallback_response:
@@ -346,7 +340,7 @@ function isStoreNameQuestion(text) {
 }
 
 function isCatalogOverviewQuestion(text) {
-  return matchesAnyPhraseExactly(text, CATALOG_OVERVIEW_HINTS) || text === 'eiger' || text === 'footwear';
+  return matchesAnyPhraseExactly(text, CATALOG_OVERVIEW_HINTS) || text === 'eiger';
 }
 
 function isCatalogListQuestion(text) {
@@ -362,6 +356,10 @@ function isCatalogListQuestion(text) {
 
 function isCatalogPageFollowup(text) {
   return /^\d{1,2}$/.test(text);
+}
+
+function isCatalogPageCommand(text) {
+  return /^(halaman|page|hlm|lanjut)(\s+ke)?\s+\d{1,2}$/i.test(text);
 }
 
 function isHelpQuestion(text) {
@@ -487,6 +485,13 @@ function extractProductPrice(item) {
   return priceLine ? priceLine.replace(/^Harga:\s*/i, '').trim() : '';
 }
 
+function extractProductDiscount(item) {
+  const discountLine = (item.text || '')
+    .split('\n')
+    .find((line) => line.toLowerCase().startsWith('diskon:'));
+  return discountLine ? discountLine.replace(/^Diskon:\s*/i, '').trim() : '';
+}
+
 function parsePriceValue(priceText) {
   const digits = String(priceText || '').replace(/[^0-9]/g, '');
   if (!digits) {
@@ -599,30 +604,62 @@ function extractRequestedPage(text) {
   return Number.isFinite(page) && page > 0 ? page : 1;
 }
 
-function buildCatalogListResponse(documents, requestedPage = 1) {
+function getCatalogPageData(documents, requestedPage = 1) {
   const totalItems = documents.length;
   if (totalItems === 0) {
-    return 'Daftar produk saat ini kosong.';
+    return {
+      totalItems: 0,
+      totalPages: 1,
+      currentPage: 1,
+      startIndex: 0,
+      pageItems: [],
+    };
   }
 
   const totalPages = Math.max(1, Math.ceil(totalItems / CATALOG_LIST_PAGE_SIZE));
   const currentPage = Math.min(Math.max(requestedPage, 1), totalPages);
   const startIndex = (currentPage - 1) * CATALOG_LIST_PAGE_SIZE;
   const pageItems = documents.slice(startIndex, startIndex + CATALOG_LIST_PAGE_SIZE);
+
+  return {
+    totalItems,
+    totalPages,
+    currentPage,
+    startIndex,
+    pageItems,
+  };
+}
+
+function buildCatalogListResponse(documents, requestedPage = 1) {
+  const { totalItems, totalPages, currentPage, startIndex, pageItems } = getCatalogPageData(
+    documents,
+    requestedPage
+  );
+
+  if (totalItems === 0) {
+    return 'Daftar produk saat ini kosong.';
+  }
+
   const lines = [
-    `Daftar produk toko - halaman ${currentPage}/${totalPages} (${totalItems} produk):`,
+    `Daftar produk toko - halaman ${currentPage}/${totalPages} (${totalItems} produk, menampilkan ${startIndex + 1}-${startIndex + pageItems.length}):`,
     '',
   ];
 
   pageItems.forEach((item, index) => {
     const title = truncateText(extractProductTitle(item), 92);
     const price = extractProductPrice(item);
-    lines.push(`${startIndex + index + 1}. ${title}${price ? ` - Harga: ${price}` : ''}`);
+    lines.push(`${index + 1}. ${title}${price ? ` - Harga: ${price}` : ''}`);
   });
 
+  lines.push('');
+  lines.push(`Balas angka 1 sampai ${pageItems.length} untuk pilih produk di halaman ini.`);
+
   if (currentPage < totalPages) {
-    lines.push('');
-    lines.push(`Balas "${currentPage + 1}" untuk melihat halaman berikutnya.`);
+    lines.push(`Ketik "halaman ${currentPage + 1}" untuk melihat halaman berikutnya.`);
+  }
+
+  if (currentPage > 1) {
+    lines.push(`Ketik "halaman ${currentPage - 1}" untuk kembali ke halaman sebelumnya.`);
   }
 
   lines.push('');
@@ -647,7 +684,7 @@ function buildBroadMatchResponse(query, matches) {
 
   lines.push('');
   lines.push(
-    'Ketik "yang murah", "yang terlaris", "yang paling mahal", atau kirim target harga seperti "50.000".'
+    `Balas angka 1 sampai ${Math.min(matches.length, 3)} untuk pilih produk, atau ketik "yang murah", "yang terlaris", "yang paling mahal", atau kirim target harga seperti "50.000".`
   );
   return lines.join('\n');
 }
@@ -680,7 +717,7 @@ function buildCategoryResponse(rule, query, matches) {
 
   lines.push('');
   lines.push(
-    'Ketik "yang murah", "yang terlaris", "yang paling mahal", atau kirim target harga seperti "50.000".'
+    `Balas angka 1 sampai ${Math.min(matches.length, 3)} untuk pilih produk, atau ketik "yang murah", "yang terlaris", "yang paling mahal", atau kirim target harga seperti "50.000".`
   );
   return lines.join('\n');
 }
@@ -709,7 +746,7 @@ function buildWelcomeResponse(behavior) {
     return behavior.welcome_response.replace(/\{store_name\}/gi, storeLabel);
   }
 
-  return `Selamat datang di ${storeLabel}. Saya siap membantu info produk yang tersedia di katalog. Ketik list untuk melihat kategori, daftar produk untuk melihat katalog, atau sebutkan produk yang Anda cari.`;
+  return `Selamat datang di ${storeLabel}. Saya siap membantu info produk yang tersedia di katalog. Ketik "jualan apa", "daftar produk", atau sebutkan produk yang Anda cari.`;
 }
 
 function getComparableCatalogEntries(chatContext) {
@@ -732,7 +769,10 @@ function getComparableCatalogEntries(chatContext) {
 
 function buildRankedRecommendationResponse(chatContext, mode, targetPrice = null) {
   if (!chatContext || !Array.isArray(chatContext.documents) || chatContext.documents.length === 0) {
-    return 'Silakan sebutkan dulu kategori atau produk yang ingin dicari, misalnya: Foot ware, sandal, atau sepatu.';
+    return {
+      text: 'Silakan sebutkan dulu kategori atau produk yang ingin dicari, misalnya: Foot ware, sandal, atau sepatu.',
+      options: [],
+    };
   }
 
   const comparableEntries = getComparableCatalogEntries(chatContext);
@@ -808,16 +848,23 @@ function buildRankedRecommendationResponse(chatContext, mode, targetPrice = null
   }
 
   if (rankedEntries.length === 0) {
-    return `Saya belum menemukan data yang bisa dibandingkan untuk ${chatContext.label || 'produk terakhir'}.`;
+    return {
+      text: `Saya belum menemukan data yang bisa dibandingkan untuk ${chatContext.label || 'produk terakhir'}.`,
+      options: [],
+    };
   }
 
   if (mode === 'popular' && rankedEntries.every((entry) => entry.soldScore === 0)) {
-    return `Saya belum menemukan data penjualan yang cukup untuk menentukan produk terlaris pada ${chatContext.label || 'produk terakhir'}.`;
+    return {
+      text: `Saya belum menemukan data penjualan yang cukup untuk menentukan produk terlaris pada ${chatContext.label || 'produk terakhir'}.`,
+      options: [],
+    };
   }
 
   const lines = [intro, ''];
+  const visibleEntries = rankedEntries.slice(0, 3);
 
-  rankedEntries.slice(0, 3).forEach((entry, index) => {
+  visibleEntries.forEach((entry, index) => {
     const title = truncateText(extractProductTitle(entry.item), 92);
     const extra = [
       entry.priceText ? `Harga: ${entry.priceText}` : '',
@@ -827,6 +874,54 @@ function buildRankedRecommendationResponse(chatContext, mode, targetPrice = null
       .join(' | ');
     lines.push(`${index + 1}. ${title}${extra ? ` - ${extra}` : ''}`);
   });
+
+  lines.push('');
+  lines.push(
+    `Balas angka 1 sampai ${visibleEntries.length} untuk pilih produk dari hasil ini.`
+  );
+
+  return {
+    text: lines.join('\n'),
+    options: visibleEntries.map((entry) => entry.item),
+  };
+}
+
+function buildSelectedProductResponse(chatContext, selectedIndex) {
+  if (
+    !chatContext ||
+    !Array.isArray(chatContext.options) ||
+    chatContext.options.length === 0 ||
+    selectedIndex < 1 ||
+    selectedIndex > chatContext.options.length
+  ) {
+    return null;
+  }
+
+  const item = chatContext.options[selectedIndex - 1];
+  const lines = [
+    `Pilihan ${selectedIndex}:`,
+    '',
+    `Nama produk: ${extractProductTitle(item)}`,
+  ];
+
+  const price = extractProductPrice(item);
+  const discount = extractProductDiscount(item);
+  const soldLabel = extractSoldLabel(item);
+
+  if (price) {
+    lines.push(`Harga: ${price}`);
+  }
+
+  if (discount) {
+    lines.push(`Diskon: ${discount}`);
+  }
+
+  if (soldLabel) {
+    lines.push(`Terjual: ${soldLabel}`);
+  }
+
+  lines.push('');
+  lines.push('Ketik "yang murah", "yang terlaris", "yang paling mahal", atau cari produk lain jika ingin lanjut.');
 
   return lines.join('\n');
 }
@@ -1208,43 +1303,56 @@ function initializeClient() {
 
       if (isCheapFollowupQuestion(normalizedMessage)) {
         const recentContext = getRecentChatContext(msg.from);
+        const rankedResult = buildRankedRecommendationResponse(recentContext, 'cheap');
         if (recentContext) {
-          setRecentChatContext(msg.from, recentContext);
+          setRecentChatContext(msg.from, {
+            ...recentContext,
+            options: rankedResult.options,
+          });
         }
-        await sendBotMessage(msg, buildRankedRecommendationResponse(recentContext, 'cheap'));
+        await sendBotMessage(msg, rankedResult.text);
         console.log(`[CHEAPEST] Replied with cheapest recommendation for ${msg.from}`);
         return;
       }
 
       if (isExpensiveFollowupQuestion(normalizedMessage)) {
         const recentContext = getRecentChatContext(msg.from);
+        const rankedResult = buildRankedRecommendationResponse(recentContext, 'expensive');
         if (recentContext) {
-          setRecentChatContext(msg.from, recentContext);
+          setRecentChatContext(msg.from, {
+            ...recentContext,
+            options: rankedResult.options,
+          });
         }
-        await sendBotMessage(msg, buildRankedRecommendationResponse(recentContext, 'expensive'));
+        await sendBotMessage(msg, rankedResult.text);
         console.log(`[EXPENSIVE] Replied with most expensive recommendation for ${msg.from}`);
         return;
       }
 
       if (isPopularFollowupQuestion(normalizedMessage)) {
         const recentContext = getRecentChatContext(msg.from);
+        const rankedResult = buildRankedRecommendationResponse(recentContext, 'popular');
         if (recentContext) {
-          setRecentChatContext(msg.from, recentContext);
+          setRecentChatContext(msg.from, {
+            ...recentContext,
+            options: rankedResult.options,
+          });
         }
-        await sendBotMessage(msg, buildRankedRecommendationResponse(recentContext, 'popular'));
+        await sendBotMessage(msg, rankedResult.text);
         console.log(`[POPULAR] Replied with most popular recommendation for ${msg.from}`);
         return;
       }
 
       if (targetPrice !== null) {
         const recentContext = getRecentChatContext(msg.from);
+        const rankedResult = buildRankedRecommendationResponse(recentContext, 'price_target', targetPrice);
         if (recentContext) {
-          setRecentChatContext(msg.from, recentContext);
+          setRecentChatContext(msg.from, {
+            ...recentContext,
+            options: rankedResult.options,
+          });
         }
-        await sendBotMessage(
-          msg,
-          buildRankedRecommendationResponse(recentContext, 'price_target', targetPrice)
-        );
+        await sendBotMessage(msg, rankedResult.text);
         console.log(
           `[PRICE_TARGET] Replied with nearest price recommendation for ${msg.from} at ${targetPrice}`
         );
@@ -1253,19 +1361,56 @@ function initializeClient() {
 
       if (isCatalogPageFollowup(normalizedMessage)) {
         const recentContext = getRecentChatContext(msg.from);
+        const requestedPage = extractRequestedPage(normalizedMessage);
+
+        if (
+          recentContext &&
+          Array.isArray(recentContext.options) &&
+          requestedPage >= 1 &&
+          requestedPage <= recentContext.options.length
+        ) {
+          const selectedProductResponse = buildSelectedProductResponse(recentContext, requestedPage);
+          if (selectedProductResponse) {
+            setRecentChatContext(msg.from, recentContext);
+            await sendBotMessage(msg, selectedProductResponse);
+            console.log(`[SELECT] Replied with selected product #${requestedPage} for ${msg.from}`);
+            return;
+          }
+        }
+
+        if (recentContext && Array.isArray(recentContext.options) && recentContext.options.length > 0) {
+          const currentPage = Number(recentContext.currentPage || 1);
+          const totalPages = Number(recentContext.totalPages || currentPage);
+          const suggestedPage = currentPage < totalPages ? currentPage + 1 : Math.max(1, currentPage - 1);
+          const guidance =
+            recentContext.kind === 'catalog_list'
+              ? `Pilihan tidak tersedia. Balas angka 1 sampai ${recentContext.options.length} untuk pilih produk, atau ketik "halaman ${suggestedPage}" jika ingin pindah halaman.`
+              : `Pilihan tidak tersedia. Balas angka 1 sampai ${recentContext.options.length} untuk pilih produk dari hasil yang sedang tampil.`;
+          await sendBotMessage(msg, guidance);
+          console.log(`[SELECT] Invalid numeric selection ${requestedPage} for ${msg.from}`);
+          return;
+        }
+      }
+
+      if (isCatalogPageCommand(normalizedMessage)) {
+        const recentContext = getRecentChatContext(msg.from);
+        const requestedPage = extractRequestedPage(normalizedMessage);
         if (recentContext && recentContext.kind === 'catalog_list') {
-          const requestedPage = extractRequestedPage(normalizedMessage);
           const catalogDocuments = Array.isArray(recentContext.documents)
             ? recentContext.documents
             : allDocuments;
           const catalogResponse = buildCatalogListResponse(catalogDocuments, requestedPage);
+          const pageData = getCatalogPageData(catalogDocuments, requestedPage);
           setRecentChatContext(msg.from, {
             ...recentContext,
             kind: 'catalog_list',
             documents: catalogDocuments,
+            options: pageData.pageItems,
+            currentPage: pageData.currentPage,
+            totalPages: pageData.totalPages,
           });
           await sendBotMessage(msg, catalogResponse);
-          console.log(`[REPLY] Replied with catalog list page ${requestedPage} from numeric follow-up`);
+          console.log(`[REPLY] Replied with catalog list page ${requestedPage} from page command`);
           return;
         }
       }
@@ -1273,11 +1418,15 @@ function initializeClient() {
       if (isCatalogListQuestion(normalizedMessage)) {
         const requestedPage = extractRequestedPage(normalizedMessage);
         const catalogResponse = buildCatalogListResponse(allDocuments, requestedPage);
+        const pageData = getCatalogPageData(allDocuments, requestedPage);
         setRecentChatContext(msg.from, {
           kind: 'catalog_list',
           label: 'produk katalog',
           query: null,
           documents: allDocuments,
+          options: pageData.pageItems,
+          currentPage: pageData.currentPage,
+          totalPages: pageData.totalPages,
         });
         await sendBotMessage(msg, catalogResponse);
         console.log(`[REPLY] Replied with catalog list page ${requestedPage}`);
@@ -1316,6 +1465,7 @@ function initializeClient() {
             label: categoryMatches.rule.label,
             query: msg.body,
             documents: filterDocumentsByCategory(categoryMatches.rule, allDocuments),
+            options: categoryMatches.matches.slice(0, 3),
           });
           await sendBotMessage(
             msg,
@@ -1338,6 +1488,7 @@ function initializeClient() {
               label: 'produk terkait',
               query: msg.body,
               documents: broadMatches,
+              options: broadMatches.slice(0, 3),
             });
             await sendBotMessage(msg, buildBroadMatchResponse(msg.body, broadMatches));
             console.log(`[BROAD_MATCH] Sent loose catalog matches for query: ${msg.body}`);

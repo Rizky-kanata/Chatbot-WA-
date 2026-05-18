@@ -311,7 +311,7 @@
       const card = document.createElement('article');
       card.className = 'category-card';
 
-      const message = encodeURIComponent(category.message || `Halo ${storeName}, saya ingin bertanya tentang ${category.label}.`);
+      const message = encodeURIComponent(category.message || category.label || 'Produk');
       const phone = String(category.whatsappNumber || '').replace(/\D/g, '');
       const waUrl = `https://wa.me/${phone}?text=${message}`;
 

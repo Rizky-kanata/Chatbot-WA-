@@ -12,8 +12,7 @@ window.WELCOME_PAGE_CONFIG = {
       whatsappNumber: '6282132557159',
       image:
         'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=900&q=80',
-      message:
-        'Halo EIGER Official Shop, saya ingin bertanya tentang kategori Tas.',
+      message: 'Tas',
     },
     {
       id: 'footware',
@@ -23,8 +22,7 @@ window.WELCOME_PAGE_CONFIG = {
       whatsappNumber: '6282132566345',
       image:
         'https://down-id.img.susercontent.com/file/e29b6f4b0c5a60d83430a63615b28964',
-      message:
-        'Halo EIGER Official Shop, saya ingin bertanya tentang kategori Foot ware.',
+      message: 'Foot ware',
     },
     {
       id: 'pakaian',
@@ -34,8 +32,7 @@ window.WELCOME_PAGE_CONFIG = {
       whatsappNumber: '6285790811544',
       image:
         'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=900&q=80',
-      message:
-        'Halo EIGER Official Shop, saya ingin bertanya tentang kategori Pakaian.',
+      message: 'Pakaian',
     },
     {
       id: 'aksesoris',
@@ -45,8 +42,7 @@ window.WELCOME_PAGE_CONFIG = {
       whatsappNumber: '6281249796669',
       image:
         'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=80',
-      message:
-        'Halo EIGER Official Shop, saya ingin bertanya tentang kategori Aksesoris.',
+      message: 'Aksesoris',
     },
     {
       id: 'perlengkapan-kemah',
@@ -56,8 +52,7 @@ window.WELCOME_PAGE_CONFIG = {
       whatsappNumber: '6281232096659',
       image:
         'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=900&q=80',
-      message:
-        'Halo EIGER Official Shop, saya ingin bertanya tentang kategori Perlengkapan Kemah.',
+      message: 'Perlengkapan Kemah',
     },
   ],
 };
